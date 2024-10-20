@@ -8,14 +8,41 @@
     {/block:Description}
 
     <style>
+      /* Devise
+      @media screen and (max-width: 767px) {}
+      @media screen and (min-width: 768px) and (max-width: 1024px) {}
+      @media screen and (min-width: 1025px) {}
+      */
+
       html {
         height: 100%;
+        font-size: 150%;
+
+        @media screen and (max-width: 480px) {
+          font-size: 100%;
+        };
       }
 
       body {
         height: 100%;
       }
 
+      /* common */
+      .link {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .link:hover {
+        text-decoration: underline;
+      }
+
+      .link:visited {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* sidebar */
       .sidebar {
         position: fixed;
         top: 0;
@@ -26,72 +53,141 @@
         gap: 40px;
         justify-content: flex-start;
         align-items: center;
-        width: 360px;
+        width: 300px;
         height: 100%;
         border-right: 1px solid;
 
-        .title {
-          color: transparent;
-          font-size: 32px;
-          -webkit-text-stroke: 1px {TitleColor};
-          font-family: {TitleFont};
-          font-weight: {TitleFontWeight};
+      }
+
+      .sidebar-title {
+        color: transparent;
+        font-size: 24px;
+        -webkit-text-stroke: 1px {TitleColor};
+        font-family: {TitleFont};
+        font-weight: {TitleFontWeight};
+      }
+
+      .sidebar-search {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 8px;
+        width: 220px;
+
+        .sidebar-search-text {
+          font-size: 16px;
         }
 
-        .search {
-          display: flex;
-          flex-direction: row;
-          justify-content: flex-start;
-          align-items: center;
-          gap: 8px;
-          width: 240px;
-          height: 40px;
-
-          .text {
-            font-size: 16px;
-          }
-
-          .input {
-            width: 180px;
-            border: none;
-            border-bottom: 1px solid;
-            outline: none;
-            padding: 4px 0;
-          }
+        .sidebar-search-input {
+          width: 148px;
+          border: none;
+          border-bottom: 1px solid;
+          outline: none;
         }
+      }
 
-        .menu {
-          width: 240px;
-          height: 36%;
+      .sidebar-menu {
+        width: 200px;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+
+        .sidebar-menu-item {
+          font-size: 16px;
+        }
+      }
+
+      .sidebar-footer {
+        width: 100%;
+        border-top: 1px solid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .sidebar-footer-menu {
+          width: 200px;
           display: flex;
           flex-direction: column;
           align-items: flex-start;
           gap: 8px;
 
-          .item {
+          .sidebar-footer-menu-item {
             font-size: 16px;
           }
         }
+      }
 
-        .footer {
-          width: 100%;
-          border-top: 1px solid;
+      /* main */
+      .main {
+        margin-left: 300px;
+        padding: 40px;
+      }
+
+      .main-content {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .posts {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        position: relative;
+      }
+
+      @media screen and (min-width: 1025px) {
+        .posts:has(.posts-item:not(:only-child)) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .posts:has(.posts-item:not(:only-child))::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          width: 1px;
+          background-color: black;
+          transform: translateX(-50%);
+          display: block;
+        }
+      }
+
+      .posts-item {
+        padding: 32px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .posts-item-header {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           align-items: center;
-          justify-content: center;
+          gap: 16px;
 
-          .menu {
-            width: 240px;
+          .title {
+            font-size: 20px;
+          }
+
+          .caption {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            flex-direction: row;
+            align-items: center;
             gap: 8px;
 
-            .item {
+            .text {
               font-size: 16px;
+              color: gray;
             }
           }
+        }
+
+        .body {
+          font-size: 16px;
         }
       }
     </style>
@@ -99,27 +195,91 @@
 
   <body>
     <div class="sidebar">
-      <div class="title">
-        {Title}
+      <div class="sidebar-title">
+        <a class="link" href="{BlogURL}">{Title}</a>
       </div>
-      <div class="search">
-        <div class="text">検索.</div>
+      <div class="sidebar-search">
+        <div class="sidebar-search-text">検索.</div>
         <form action="/search" method="get">
-          <input class="input" type="text" name="q" value="{SearchQuery}" />
+          <input class="sidebar-search-input" type="text" name="q" value="{SearchQuery}" />
         </form>
       </div>
-      <ul class="menu">
-        <li class="item">文章</li>
-        <li class="item">画像</li>
-      </ul>
-      <div class="footer">
-        <ul class="menu">
-          <li class="item">Tumblr</li>
-          <li class="item">X / Twitter</li>
-          <li class="item">Instagram</li>
-          <li class="item">Github</li>
+      <ul class="sidebar-menu" id="sidebar-menu"></ul>
+      <div class="sidebar-footer">
+        <ul class="sidebar-footer-menu">
+          <li class="sidebar-footer-menu-item">
+            <a target="_blank" class="link" href="https://www.tumblr.com/kiki-ki-moi">Tumblr</a>
+          </li>
+          <li class="sidebar-footer-menu-item">
+            <a target="_blank" class="link" href="https://x.com/nakataros">X / Twitter</a>
+          </li>
+          <li class="sidebar-footer-menu-item">
+            <a target="_blank" class="link" href="https://www.instagram.com/kai_aiue/">Instagram</a>
+          </li>
+          <li class="sidebar-footer-menu-item">
+            <a target="_blank" class="link" href="https://github.com/kiki-ki">Github</a>
+          </li>
         </ul>
       </div>
     </div>
+    <div class="main">
+      <div class="main-content">
+        <div class="posts">
+          {block:Posts}
+          <div class="posts-item">
+            <div class="posts-item-header">
+              {block:Title}
+                <a class="title link" href="{Permalink}">{Title}</a>
+              {/block:Title}
+              <div class="caption">
+                <div class="text">{Year}/{MonthNumber}/{DayOfMonth}</div>
+                {block:Tags}
+                  <a id="post-tag" class="text link" href="{TagURL}">#{Tag}</a>
+                {/block:Tags}
+              </div>
+            </div>
+            <div class="body">{Body}</div>
+            <div class="link">{Link}</div>
+          </div>
+          {/block:Posts}
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      // Set top tags into sidebar menu.
+      document.addEventListener("DOMContentLoaded", function () {
+        const tagElements = document.querySelectorAll('#post-tag');
+        const tags = {};
+
+        tagElements.forEach((tagElement) => {
+          let id = tagElement.text;
+          let href = tagElement.href;
+          if (tags[id]) {
+            tags[id].count++;
+          } else {
+            tags[id] = { count: 1, id: id, href: href };
+          }
+        });
+
+        const sortedTags = Object.entries(tags)
+          .sort((a, b) => b[1].count - a[1].count)
+          .map((e) => e[1]);
+        const topNTags = sortedTags.slice(0, 5);
+        const sidebarMenu = document.getElementById('sidebar-menu');
+
+        topNTags.forEach((tag) => {
+          let a = document.createElement('a');
+          a.setAttribute('href', tag.href);
+          a.className = 'link';
+          a.text = tag.id;
+
+          let li = document.createElement('li');
+          li.className = 'sidebar-menu-item';
+          li.appendChild(a);
+
+          sidebarMenu.appendChild(li);
+        });
+      });
+    </script>
   </body>
 </html>
